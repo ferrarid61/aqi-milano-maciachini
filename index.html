@@ -87,7 +87,7 @@ body { font-family: var(--font-sans); background: #F1EFE8; }
 </div>
 
 <script>
-const APP_TOKEN = "q2XX9Pb63HuxfQ4audWFpjJlh";
+const APP_TOKEN = new URLSearchParams(window.location.search).get("token") || "";
 const BASE_URL  = "https://www.dati.lombardia.it/api/v3/views/ykhg-b8rs/query.json";
 
 const SENSORI = [
