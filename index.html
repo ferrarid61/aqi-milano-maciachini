@@ -370,6 +370,99 @@
     50% { opacity: 0.3; }
   }
   .status-dot.loading { animation: pulse 1.2s ease-in-out infinite; }
+
+  /* ── TABLET (iPad portrait/landscape <= 1024px) ── */
+  @media (max-width: 1024px) {
+    html, body { overflow: auto; height: auto; }
+
+    .dash {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      height: auto;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      height: auto;
+      flex-direction: row;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .sidebar > div:first-child { flex: 1; min-width: 120px; }
+
+    .aqi-circle-wrap {
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      padding: 0;
+    }
+
+    .aqi-circle { width: 64px; height: 64px; }
+    .aqi-circle-lv { font-size: 22px; }
+    .aqi-circle-sub { font-size: 9px; }
+    .aqi-circle-desc { display: none; }
+
+    .sidebar-legend {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+      border-left: 1px solid rgba(255,255,255,0.1);
+      padding-left: 1rem;
+    }
+
+    .sidebar-legend-title { margin-bottom: 6px; }
+    .legend-row { margin-bottom: 4px; }
+
+    .main {
+      height: auto;
+      overflow: visible;
+      padding: 1.25rem 1.25rem 1.5rem;
+    }
+
+    .sensors { grid-template-columns: repeat(3, 1fr); }
+    .card { aspect-ratio: 1 / 1; }
+  }
+
+  /* ── MOBILE (<= 600px) ── */
+  @media (max-width: 600px) {
+    .sidebar {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1.25rem 1rem;
+    }
+
+    .aqi-circle-wrap { flex-direction: row; }
+
+    .sidebar-legend {
+      border-left: none;
+      padding-left: 0;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding-top: 0.75rem;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    .sidebar-legend-title { grid-column: 1 / -1; }
+    .legend-label { font-size: 10px; }
+
+    .main { padding: 1rem; gap: 1rem; }
+
+    .main-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+
+    .sensors { grid-template-columns: repeat(2, 1fr); }
+
+    .card:last-child:nth-child(odd) {
+      grid-column: 1 / -1;
+      aspect-ratio: 2 / 1;
+    }
+
+    .card-value { font-size: 24px; }
+    .sensors-desc { min-height: 60px; font-size: 10px; }
+  }
 </style>
 </head>
 <body>
