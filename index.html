@@ -202,22 +202,45 @@
   .sensors-desc {
     background: rgba(255,255,255,0.55);
     border-radius: 12px;
-    border: 1px dashed #C8C6BC;
-    padding: 0.85rem 1.1rem;
+    border: 1px solid #E8E6DF;
+    padding: 0.5rem 1rem;
     flex: 1;
     min-height: 80px;
     display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #B4B2A9;
-    font-size: 11px;
-    font-family: var(--font-mono);
+    flex-direction: column;
+    justify-content: center;
+    gap: 0;
   }
 
-  .sensors-desc-icon {
-    font-size: 18px;
-    opacity: 0.5;
+  .info-row {
+    display: flex;
+    align-items: baseline;
+    gap: 7px;
+    padding: 5px 0;
+    border-bottom: 0.5px solid #F1EFE8;
+    font-size: 11.5px;
+    line-height: 1.4;
+  }
+
+  .info-row:last-child { border-bottom: none; }
+
+  .info-abbr {
+    font-weight: 500;
+    color: #27500A;
+    min-width: 38px;
     flex-shrink: 0;
+  }
+
+  .info-sep { color: #C8C6BC; flex-shrink: 0; }
+
+  .info-origin {
+    color: #5F5E5A;
+    flex-shrink: 0;
+  }
+
+  .info-effect {
+    color: #888780;
+    flex: 1;
   }
 
   /* ── CARD ── */
@@ -510,8 +533,11 @@
         <div class="loading-msg">Recupero dati in corso…</div>
       </div>
       <div class="sensors-desc">
-        <div class="sensors-desc-icon">✦</div>
-        <span>Area riservata a testo descrittivo — note, avvisi o analisi contestuale.</span>
+        <div class="info-row"><span class="info-abbr">NO₂</span><span class="info-sep">·</span><span class="info-origin">Traffico e combustione ad alta temperatura.</span><span class="info-sep">·</span><span class="info-effect">Irrita le vie respiratorie, aggrava asma e bronchiti.</span></div>
+        <div class="info-row"><span class="info-abbr">CO</span><span class="info-sep">·</span><span class="info-origin">Combustione incompleta: traffico e riscaldamento.</span><span class="info-sep">·</span><span class="info-effect">Riduce il trasporto di ossigeno nel sangue; a basse dosi causa affaticamento.</span></div>
+        <div class="info-row"><span class="info-abbr">C₆H₆</span><span class="info-sep">·</span><span class="info-origin">Vapori di carburante e solventi industriali.</span><span class="info-sep">·</span><span class="info-effect">Cancerogeno certo (leucemia); pericoloso anche a basse concentrazioni.</span></div>
+        <div class="info-row"><span class="info-abbr">PM10</span><span class="info-sep">·</span><span class="info-origin">Polveri stradali, cantieri, freni e pneumatici.</span><span class="info-sep">·</span><span class="info-effect">Si deposita nelle vie aeree superiori; aumenta le crisi asmatiche.</span></div>
+        <div class="info-row"><span class="info-abbr">PM2.5</span><span class="info-sep">·</span><span class="info-origin">Combustione di legna e diesel, industria.</span><span class="info-sep">·</span><span class="info-effect">Penetra negli alveoli e nel sangue; associato a malattie cardiovascolari.</span></div>
       </div>
     </div>
 
