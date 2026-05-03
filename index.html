@@ -2,6 +2,8 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="format-detection" content="telephone=no">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Qualità dell'aria — Milano v.Marche</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -235,6 +237,13 @@
 
   .info-origin {
     color: #5F5E5A;
+    flex-shrink: 0;
+  }
+
+  .info-name {
+    color: #444441;
+    font-size: 11px;
+    min-width: 140px;
     flex-shrink: 0;
   }
 
@@ -533,134 +542,9 @@
         <div class="loading-msg">Recupero dati in corso…</div>
       </div>
       <div class="sensors-desc">
-        <div class="info-row"><span class="info-abbr">NO₂</span><span class="info-sep">·</span><span class="info-origin">Biossido di Azoto: Traffico e combustione ad alta temperatura.</span><span class="info-sep">·</span><span class="info-effect">Irrita le vie respiratorie, aggrava asma e bronchiti.</span></div>
-        <div class="info-row"><span class="info-abbr">CO</span><span class="info-sep">·</span><span class="info-origin">Monossido di Carbonio: Combustione incompleta: traffico e riscaldamento.</span><span class="info-sep">·</span><span class="info-effect">Riduce il trasporto di ossigeno nel sangue; a basse dosi causa affaticamento.</span></div>
-        <div class="info-row"><span class="info-abbr">C₆H₆</span><span class="info-sep">·</span><span class="info-origin">Benzene: Vapori di carburante e solventi industriali.</span><span class="info-sep">·</span><span class="info-effect">Cancerogeno certo (leucemia); pericoloso anche a basse concentrazioni.</span></div>
-        <div class="info-row"><span class="info-abbr">PM10</span><span class="info-sep">·</span><span class="info-origin">Particolato: Polveri stradali, cantieri, freni e pneumatici.</span><span class="info-sep">·</span><span class="info-effect">Si deposita nelle vie aeree superiori; aumenta le crisi asmatiche.</span></div>
-        <div class="info-row"><span class="info-abbr">PM2.5</span><span class="info-sep">·</span><span class="info-origin">Micro Particolato: Combustione di legna e diesel, industria.</span><span class="info-sep">·</span><span class="info-effect">Penetra negli alveoli e nel sangue; associato a malattie cardiovascolari.</span></div>
-      </div>
-    </div>
-
-    <div class="footer">Fonte: dati.lombardia.it · Aggiornamento automatico ogni ora</div>
-  </div>
-</div>
-
-<script>
-  const APP_TOKEN = new URLSearchParams(window.location.search).get("token") || "";
-  const BASE_URL  = "https://www.dati.lombardia.it/api/v3/views/ykhg-b8rs/query.json";
-
-  const SENSORI = [
-    { id:"5504",  abbr:"NO₂",    nome:"Biossido di Azoto",     unita:"µg/m³", key:"NO2"  },
-    { id:"5827",  abbr:"CO",     nome:"Monossido di Carbonio", unita:"mg/m³", key:"CO"   },
-    { id:"17127", abbr:"C₆H₆",  nome:"Benzene",               unita:"µg/m³", key:"BNZ"  },
-    { id:"20430", abbr:"PM10",   nome:"Particolato PM10",      unita:"µg/m³", key:"PM10" },
-    { id:"20530", abbr:"PM2.5",  nome:"Particolato PM2.5",     unita:"µg/m³", key:"PM25" },
-  ];
-
-  const SOGLIE = {
-    NO2:  [[40,1],[100,2],[200,3],[400,4],[Infinity,5]],
-    CO:   [[5,1],[7.5,2],[10,3],[20,4],[Infinity,5]],
-    BNZ:  [[1.7,1],[3.4,2],[5,3],[10,4],[Infinity,5]],
-    PM10: [[20,1],[35,2],[50,3],[100,4],[Infinity,5]],
-    PM25: [[10,1],[20,2],[25,3],[50,4],[Infinity,5]],
-  };
-
-  const LIVELLI = {
-    1: { label:"Buono",    color:"#1D9E75", light:"#E1F5EE", text:"#085041" },
-    2: { label:"Discreto", color:"#F5C400", light:"#FFF8D6", text:"#6B5000" },
-    3: { label:"Mediocre", color:"#F07800", light:"#FFF0DC", text:"#6B3200" },
-    4: { label:"Scadente", color:"#E02020", light:"#FDEAEA", text:"#7A0000" },
-    5: { label:"Pessimo",  color:"#7B1FA2", light:"#F5E6FB", text:"#3D0054" },
-  };
-
-  const getLv = (key, v) => { for (const [s,l] of SOGLIE[key]) if (v<=s) return l; return 5; };
-  const getMax = key => SOGLIE[key][SOGLIE[key].length-2][0];
-
-  function fmtData(iso) {
-    if (!iso) return "—";
-    return new Date(iso).toLocaleString("it-IT", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" });
-  }
-
-  async function fetchSensore(id) {
-    const q = `SELECT \`idsensore\`,\`data\`,\`valore\` WHERE caseless_one_of(\`idsensore\`,"${id}") AND \`valore\` IS NOT NULL ORDER BY \`data\` DESC LIMIT 1`;
-    const r = await fetch(`${BASE_URL}?query=${encodeURIComponent(q)}`, {
-      headers: APP_TOKEN ? { "X-App-Token": APP_TOKEN } : {}
-    });
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    const d = await r.json();
-    const rows = Array.isArray(d) ? d : (d.resultSet?.row || []);
-    if (!rows.length) return null;
-    return { valore: parseFloat(rows[0].valore), data: rows[0].data };
-  }
-
-  // Cache DOM refs
-  const $ = id => document.getElementById(id);
-  let timer = null;
-
-  async function fetchAll() {
-    const btn = $("refresh-btn");
-    const dot = $("status-dot");
-    btn.disabled = true;
-    dot.className = "status-dot loading";
-    dot.style.background = "#ccc";
-    $("status-text").textContent = "Aggiornamento…";
-    $("sensors").innerHTML = '<div class="loading-msg">Recupero dati…</div>';
-
-    const results = await Promise.allSettled(SENSORI.map(s => fetchSensore(s.id)));
-    let lvMax = 1;
-
-    // Build HTML in one pass — single innerHTML write
-    const html = results.map((res, i) => {
-      const s = SENSORI[i];
-      if (res.status === "fulfilled" && res.value) {
-        const { valore, data } = res.value;
-        const lv = getLv(s.key, valore);
-        if (lv > lvMax) lvMax = lv;
-        const info = LIVELLI[lv];
-        const pct = Math.min(100, Math.round(valore / getMax(s.key) * 100));
-        const vf = valore < 10 ? valore.toFixed(2) : Math.round(valore);
-        return `<div class="card" style="border-left-color:${info.color};">
-          <div class="card-top">
-            <div class="card-abbr">${s.abbr}</div>
-            <div class="card-badge" style="background:${info.light};color:${info.text};">${info.label}</div>
-          </div>
-          <div class="card-value">${vf}</div>
-          <div class="card-unit">${s.unita}</div>
-          <div class="bar-bg"><div class="bar-fill" style="width:${pct}%;background:${info.color};"></div></div>
-          <div class="card-name">${s.nome}</div>
-          <div class="card-time">${fmtData(data)}</div>
-          <div class="leaf-deco">❧</div>
-        </div>`;
-      }
-      return `<div class="card" style="border-left-color:#ccc;">
-        <div class="card-top"><div class="card-abbr">${s.abbr}</div></div>
-        <div class="card-value" style="font-size:16px;color:#888780;">N/D</div>
-        <div class="card-name">${s.nome}</div>
-      </div>`;
-    }).join("");
-
-    $("sensors").innerHTML = html;
-
-    const info = LIVELLI[lvMax];
-    $("aqi-lv").textContent = lvMax;
-    $("aqi-label").textContent = info.label;
-    const circle = $("aqi-circle");
-    circle.style.borderColor = info.color + "88";
-    circle.style.background  = info.color + "33";
-
-    const now = new Date();
-    const timeStr = now.toLocaleString("it-IT", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" });
-    $("sb-time").textContent = timeStr;
-    dot.className = "status-dot";
-    dot.style.background = info.color;
-    $("status-text").textContent = "Aggiornato " + now.toLocaleTimeString("it-IT", { hour:"2-digit", minute:"2-digit" });
-    btn.disabled = false;
-
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(fetchAll, 60 * 60 * 1000);
-  }
-
-  fetchAll();
-</script>
-</body>
-</html>
+        <div class="info-row"><span class="info-abbr">NO₂</span><span class="info-name">Biossido di Azoto</span><span class="info-sep">·</span><span class="info-origin">Traffico e combustione ad alta temperatura.</span><span class="info-sep">·</span><span class="info-effect">Irrita le vie respiratorie, aggrava asma e bronchiti.</span></div>
+        <div class="info-row"><span class="info-abbr">CO</span><span class="info-name">Monossido di Carbonio</span><span class="info-sep">·</span><span class="info-origin">Combustione incompleta: traffico e riscaldamento.</span><span class="info-sep">·</span><span class="info-effect">Riduce il trasporto di ossigeno; a basse dosi causa affaticamento.</span></div>
+        <div class="info-row"><span class="info-abbr">C₆H₆</span><span class="info-name">Benzene</span><span class="info-sep">·</span><span class="info-origin">Vapori di carburante e solventi industriali.</span><span class="info-sep">·</span><span class="info-effect">Cancerogeno certo (leucemia); pericoloso anche a basse dosi.</span></div>
+        <div class="info-row"><span class="info-abbr">PM10</span><span class="info-name">Particolato grossolano</span><span class="info-sep">·</span><span class="info-origin">Polveri stradali, cantieri, freni e pneumatici.</span><span class="info-sep">·</span><span class="info-effect">Si deposita nelle vie aeree; aumenta le crisi asmatiche.</span></div>
+        <div class="info-row"><span class="info-abbr">PM2.5</span><span class="info-name">Particolato fine</span><span class="info-sep">·</span><span class="info-origin">Combustione di legna e diesel, industria.</span><span class="info-sep">·</span><span class="info-effect">Penetra negli alveoli e nel sangue; associato a malattie cardiovascolari.</span></div>
+      </div>>
